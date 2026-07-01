@@ -1,2 +1,29 @@
-# edumind-web
-EduMind is a modern online learning platform website designed to provide students, staff and admin with easy access to educational content, resources, and interactive learning features.
+# 🎓 EduMind - Online Learning Platform
+
+EduMind is a modern educational website designed to provide students with easy access to learning materials, structured courses, and interactive educational resources.
+
+---
+
+## 🚀 Features
+
+- 📚 Organized course structure
+- 👨‍🏫 Teacher and student-friendly UI
+- 📱 Fully responsive design
+- 🔍 Easy navigation system
+- 📊 Clean dashboard layout (if applicable)
+- 🌐 Accessible on all devices
+
+---
+
+## 🛠️ Technologies Used
+
+- HTML5
+- CSS3
+- JavaScript
+- Bootstrap (optional)
+- PHP / Node.js (if backend used)
+- MySQL (if database used)
+
+---
+
+## 📂 Project Structure
