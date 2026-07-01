@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+  }
+  body {
+    @apply bg-paper text-ink antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Sora', sans-serif;
+  }
+  :focus-visible {
+    outline: 2px solid #3949AB;
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Signature element: campus ID tag chip — used for user identity everywhere
+     (topbar, list rows, profile headers). Echoes a laminated ID card corner:
+     a colored edge stripe + monospace ID number, grounded in the campus subject. */
+  .id-tag {
+    @apply inline-flex items-center gap-2 rounded-md border border-slate bg-white pl-2 pr-3 py-1;
+    border-left-width: 3px;
+  }
+  .id-tag-num {
+    @apply font-mono text-xs tracking-wide text-ink/70;
+  }
+
+  .card {
+    @apply rounded-card border border-slate bg-white p-5;
+  }
+
+  .stripe-card {
+    @apply card border-l-[3px];
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary-admin { @apply btn bg-admin text-white hover:bg-admin-dark; }
+  .btn-primary-faculty { @apply btn bg-faculty text-white hover:bg-faculty-dark; }
+  .btn-primary-student { @apply btn bg-student text-white hover:bg-student-dark; }
+  .btn-ghost { @apply btn border border-slate bg-white text-ink hover:bg-paper; }
+  .btn-danger { @apply btn bg-danger text-white hover:opacity-90; }
+
+  .input {
+    @apply w-full rounded-md border border-slate bg-white px-3 py-2 text-sm text-ink placeholder:text-ink/40 focus:border-transparent;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink/60;
+  }
+
+  .table-base {
+    @apply w-full text-left text-sm;
+  }
+  .table-base th {
+    @apply border-b border-slate px-3 py-2 text-xs font-medium uppercase tracking-wide text-ink/50;
+  }
+  .table-base td {
+    @apply border-b border-slate/70 px-3 py-2.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}
