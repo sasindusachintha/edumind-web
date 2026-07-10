@@ -1,50 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { GraduationCap, Users, Building2, BookOpen, Megaphone } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import * as adminApi from '../../api/admin.js';
 import PageHeader from '../../components/common/PageHeader.jsx';
 import StatCard from '../../components/common/StatCard.jsx';
 import RadialGauge from '../../components/common/RadialGauge.jsx';
+import Spinner from '../../components/common/Spinner.jsx';
+import { formatDate } from '../../utils.js';
 import { ROLE_THEME } from '../../theme.js';
 
 const ACCENT = ROLE_THEME.admin.accent;
 
-// Demo data — this page is intentionally not wired to the backend yet.
-const data = {
-  totalStudents: 482,
-  totalFaculty: 36,
-  totalBranches: 4,
-  totalSubjects: 28,
-  avgAttendance: 87,
-  attendanceTrend: [
-    { date: '2026-05-01', rate: 84 },
-    { date: '2026-05-08', rate: 86 },
-    { date: '2026-05-15', rate: 88 },
-    { date: '2026-05-22', rate: 85 },
-    { date: '2026-05-29', rate: 89 },
-    { date: '2026-06-05', rate: 87 }
-  ],
-  branchBreakdown: [
-    { branch: 'Computing', students: 168 },
-    { branch: 'Business', students: 124 },
-    { branch: 'Engineering', students: 110 },
-    { branch: 'Design', students: 80 }
-  ],
-  recentNotices: [
-    { id: 1, title: 'Mid-semester exam timetable released', postedBy: 'Admin Office', created_at: '2026-06-15', audience: 'All' },
-    { id: 2, title: 'Library extended hours during exam week', postedBy: 'Admin Office', created_at: '2026-06-12', audience: 'Students' },
-    { id: 3, title: 'Faculty meeting rescheduled to Friday', postedBy: 'Admin Office', created_at: '2026-06-10', audience: 'Faculty' }
-  ]
-};
-
-function formatShort(d) {
-  const dt = new Date(d);
-  return dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
 export default function AdminOverview() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    adminApi.getDashboard().then((res) => setData(res.data)).finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div className="flex justify-center py-20"><Spinner size={28} /></div>;
+  }
+  if (!data) return null;
+
   return (
     <div>
-      <PageHeader title="Overview" subtitle="A snapshot of the whole college." />
+      <PageHeader title="Overview" subtitle="A live snapshot of the whole college." />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={GraduationCap} label="Students" value={data.totalStudents} accent={ACCENT} />
@@ -65,9 +47,9 @@ export default function AdminOverview() {
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={data.attendanceTrend}>
               <CartesianGrid stroke="#E2E5EC" vertical={false} />
-              <XAxis dataKey="date" tickFormatter={formatShort} fontSize={11} stroke="#8A8FA3" />
+              <XAxis dataKey="date" tickFormatter={(d) => formatDate(d).slice(0, 6)} fontSize={11} stroke="#8A8FA3" />
               <YAxis fontSize={11} stroke="#8A8FA3" width={32} domain={[0, 100]} />
-              <Tooltip labelFormatter={formatShort} formatter={(v) => [`${v}%`, 'Attendance']} />
+              <Tooltip labelFormatter={(d) => formatDate(d)} formatter={(v) => [`${v}%`, 'Attendance']} />
               <Line type="monotone" dataKey="rate" stroke={ACCENT} strokeWidth={2.5} dot={false} />
             </LineChart>
           </ResponsiveContainer>
@@ -93,19 +75,23 @@ export default function AdminOverview() {
             <p className="text-xs font-medium uppercase tracking-wide text-ink/50">Recent notices</p>
             <Megaphone size={15} className="text-ink/30" />
           </div>
-          <ul className="divide-y divide-slate">
-            {data.recentNotices.map((n) => (
-              <li key={n.id} className="flex items-center justify-between py-2.5">
-                <div>
-                  <p className="text-sm font-medium text-ink">{n.title}</p>
-                  <p className="text-xs text-ink/45">by {n.postedBy} · {formatShort(n.created_at)}</p>
-                </div>
-                <span className="rounded-full bg-admin-soft px-2.5 py-0.5 text-xs font-medium text-admin-dark">
-                  {n.audience}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {data.recentNotices.length === 0 ? (
+            <p className="py-6 text-center text-sm text-ink/40">No notices published yet.</p>
+          ) : (
+            <ul className="divide-y divide-slate">
+              {data.recentNotices.map((n) => (
+                <li key={n.id} className="flex items-center justify-between py-2.5">
+                  <div>
+                    <p className="text-sm font-medium text-ink">{n.title}</p>
+                    <p className="text-xs text-ink/45">by {n.postedBy} · {formatDate(n.created_at)}</p>
+                  </div>
+                  <span className="rounded-full bg-admin-soft px-2.5 py-0.5 text-xs font-medium text-admin-dark">
+                    {n.audience}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>

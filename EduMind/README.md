@@ -75,15 +75,13 @@ The seed data includes one account per role so you can explore all three portals
 
 Two more faculty accounts (`anjali.p@edumind.lk`, `kasun.f@edumind.lk`) and seven more student accounts (`ST002`–`ST008`, email pattern `firstname.initial@edumind.lk`) share the same passwords as above for their role. One student, **Ruwan Bandara** (`ruwan.b@edumind.lk`), is deliberately seeded with poor attendance (~41%) so you can demo the low-attendance warning banner and the admin attendance report's at-risk flagging.
 
-## 6. Current build status
+## 6. What's inside each portal
 
-This is a work-in-progress snapshot, not the finished system. A subset of each portal is wired up end-to-end so the core flows can be demoed live; the remaining modules are visible in the navigation (to show the planned scope) but currently render a "Coming soon" placeholder while they're being built.
+**Admin** — dashboard with live stats and charts, full CRUD for students, faculty, branches, and subjects, notice publishing, exam scheduling, attendance and performance reports, and a system-wide activity log.
 
-**Admin** — Overview dashboard is implemented (currently shown with sample data while the live aggregation queries are finalized). Students, Faculty, Branches, Subjects, Notices, Exams, Reports, and Activity Logs are scaffolded in the nav and pending implementation.
+**Faculty** — overview of assigned subjects, student search, session-based attendance marking, internal/final marks entry, course material uploads, and personal (optionally shareable) notes.
 
-**Faculty** — Overview is implemented (sample data, same as above). Subjects, Students, Attendance, Marks, Materials, Notes, and Profile are scaffolded and pending implementation.
-
-**Student** — Overview, Schedule, Attendance, and Marks are fully implemented and connected live to the database. Materials, Notices, Notifications, and Notes are scaffolded and pending implementation.
+**Student** — attendance and marks broken down by subject, exam schedule, downloadable materials, college notices, notifications (including low-attendance alerts), and personal notes.
 
 ## 7. Project structure
 

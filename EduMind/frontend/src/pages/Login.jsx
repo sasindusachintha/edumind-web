@@ -50,7 +50,7 @@ export default function Login() {
 
         <div className="relative z-10 max-w-sm">
           <h1 className="font-display text-3xl font-bold leading-tight">
-            One platform for everything your college needs
+             One platform for everything your college needs.
           </h1>
           <p className="mt-3 text-sm text-white/65">
             A modern solution for efficient and organized academic management.
