@@ -34,3 +34,6 @@ export const listLogs = () => api.get('/admin/logs');
 
 export const attendanceReport = () => api.get('/admin/reports/attendance');
 export const performanceReport = () => api.get('/admin/reports/performance');
+
+export const getUsers = (params) => api.get('/admin/users', { params }).then(r => r.data);
+export const updateUserStatus = (id, status) => api.put(`/admin/users/${id}/status`, { status }).then(r => r.data);

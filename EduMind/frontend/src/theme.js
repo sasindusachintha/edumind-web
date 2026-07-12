@@ -1,6 +1,6 @@
 import { LayoutDashboard, Users, GraduationCap, Building2, BookOpen, Megaphone, CalendarClock,
   ScrollText, BarChart3, UserCircle, ClipboardCheck, PencilLine, FolderUp, StickyNote,
-  CalendarDays, FileText, Bell } from 'lucide-react';
+  CalendarDays, FileText, Bell, QrCode } from 'lucide-react';
 
 export const ROLE_THEME = {
   admin: {
@@ -19,6 +19,7 @@ export const ROLE_THEME = {
       { to: '/admin/faculty', label: 'Faculty', icon: Users },
       { to: '/admin/branches', label: 'Branches', icon: Building2 },
       { to: '/admin/subjects', label: 'Subjects', icon: BookOpen },
+      { to: '/admin/users', label: 'User Approvals', icon: UserCircle },
       { to: '/admin/notices', label: 'Notices', icon: Megaphone },
       { to: '/admin/exams', label: 'Exams', icon: CalendarClock },
       { to: '/admin/reports', label: 'Reports', icon: BarChart3 },
@@ -60,6 +61,7 @@ export const ROLE_THEME = {
       { to: '/student', label: 'Overview', icon: LayoutDashboard, end: true },
       { to: '/student/schedule', label: 'Schedule', icon: CalendarDays },
       { to: '/student/attendance', label: 'Attendance', icon: ClipboardCheck },
+      { to: '/student/scan-attendance', label: 'Scan Attendance QR', icon: QrCode },
       { to: '/student/marks', label: 'Marks', icon: PencilLine },
       { to: '/student/materials', label: 'Materials', icon: FileText },
       { to: '/student/notices', label: 'Notices', icon: Megaphone },

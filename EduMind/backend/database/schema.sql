@@ -19,7 +19,8 @@ CREATE TABLE users (
   role ENUM('admin', 'faculty', 'student') NOT NULL,
   phone VARCHAR(20),
   avatar_color VARCHAR(7) DEFAULT '#3949AB',
-  status ENUM('active', 'disabled') DEFAULT 'active',
+  status TINYINT(1) NOT NULL DEFAULT 0, -- 0 = pending admin approval / disabled, 1 = approved & active
+  is_verified TINYINT(1) NOT NULL DEFAULT 0, -- OTP-verified contact (email/phone)
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -211,3 +212,45 @@ CREATE TABLE notifications (
 CREATE INDEX idx_attendance_subject_date ON attendance(subject_id, date);
 CREATE INDEX idx_marks_student ON marks(student_id);
 CREATE INDEX idx_notices_audience ON notices(audience);
+
+CREATE TABLE IF NOT EXISTS user_otps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(150) NOT NULL,
+  otp_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  attempts INT DEFAULT 0,
+  otp_type ENUM('email', 'sms') DEFAULT 'email',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_otps_email (email)
+);
+
+-- ------------------------------------------------------------
+-- QR CODE ATTENDANCE (see database/migrations/20260711_qr_attendance_sessions.sql
+-- for the full explanation of why this doesn't reuse the `attendance` table)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS attendance_sessions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  subject_id INT NOT NULL,
+  faculty_id INT NOT NULL,
+  class_label VARCHAR(100),
+  session_date DATE NOT NULL,
+  qr_token VARCHAR(255) NOT NULL UNIQUE,
+  duration_minutes INT NOT NULL DEFAULT 5,
+  expires_at DATETIME NOT NULL,
+  status ENUM('active', 'expired') NOT NULL DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_attendance_sessions_token (qr_token),
+  FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+  FOREIGN KEY (faculty_id) REFERENCES faculty(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS attendance_qr_marks (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  student_id INT NOT NULL,
+  session_id INT NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'present',
+  marked_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_student_session (student_id, session_id),
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  FOREIGN KEY (session_id) REFERENCES attendance_sessions(id) ON DELETE CASCADE
+);

@@ -89,7 +89,7 @@ async function createStudent(req, res) {
     await conn.beginTransaction();
     const hash = await bcrypt.hash(password, 10);
     const [userResult] = await conn.query(
-      'INSERT INTO users (name, email, password, role, phone, avatar_color) VALUES (?, ?, ?, "student", ?, "#F0A500")',
+      'INSERT INTO users (name, email, password, role, phone, avatar_color, status, is_verified) VALUES (?, ?, ?, "student", ?, "#F0A500", 1, 1)',
       [name, email, hash, phone || null]
     );
     const [studentResult] = await conn.query(
@@ -118,8 +118,9 @@ async function updateStudent(req, res) {
     const [rows] = await pool.query('SELECT * FROM students WHERE id = ?', [id]);
     if (!rows[0]) return res.status(404).json({ message: 'Student not found.' });
 
+    const normalizedStatus = status === undefined || status === null || status === '' ? 1 : (Number(status) ? 1 : 0);
     await pool.query('UPDATE users SET name = ?, email = ?, phone = ?, status = ? WHERE id = ?', [
-      name, email, phone || null, status || 'active', rows[0].user_id,
+      name, email, phone || null, normalizedStatus, rows[0].user_id,
     ]);
     await pool.query('UPDATE students SET branch_id = ?, semester = ? WHERE id = ?', [
       branchId || null, semester || 1, id,
@@ -181,7 +182,7 @@ async function createFaculty(req, res) {
     await conn.beginTransaction();
     const hash = await bcrypt.hash(password, 10);
     const [userResult] = await conn.query(
-      'INSERT INTO users (name, email, password, role, phone, avatar_color) VALUES (?, ?, ?, "faculty", ?, "#00897B")',
+      'INSERT INTO users (name, email, password, role, phone, avatar_color, status, is_verified) VALUES (?, ?, ?, "faculty", ?, "#00897B", 1, 1)',
       [name, email, hash, phone || null]
     );
     const [facResult] = await conn.query(
@@ -210,8 +211,9 @@ async function updateFaculty(req, res) {
     const [rows] = await pool.query('SELECT * FROM faculty WHERE id = ?', [id]);
     if (!rows[0]) return res.status(404).json({ message: 'Faculty not found.' });
 
+    const normalizedStatus = status === undefined || status === null || status === '' ? 1 : (Number(status) ? 1 : 0);
     await pool.query('UPDATE users SET name = ?, email = ?, phone = ?, status = ? WHERE id = ?', [
-      name, email, phone || null, status || 'active', rows[0].user_id,
+      name, email, phone || null, normalizedStatus, rows[0].user_id,
     ]);
     await pool.query('UPDATE faculty SET designation = ?, branch_id = ? WHERE id = ?', [
       designation || 'Lecturer', branchId || null, id,
@@ -512,6 +514,59 @@ async function performanceReport(req, res) {
   }
 }
 
+/* ---------------------------------------------------------- */
+/* LIST / SEARCH USERS                                        */
+/* ---------------------------------------------------------- */
+async function listUsers(req, res) {
+  try {
+    const { status = '', search = '' } = req.query;
+    let sql = `SELECT id, name, email, phone, role, status, is_verified, created_at FROM users WHERE 1=1`;
+    const params = [];
+    if (status !== '' && status !== undefined && status !== null) {
+      sql += ' AND status = ?';
+      params.push(Number(status) ? 1 : 0);
+    }
+    if (search) {
+      sql += ' AND (name LIKE ? OR email LIKE ?)';
+      params.push(`%${search}%`, `%${search}%`);
+    }
+    sql += ' ORDER BY id DESC LIMIT 200';
+    const [rows] = await pool.query(sql, params);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error while listing users.' });
+  }
+}
+
+/* ---------------------------------------------------------- */
+/* USER STATUS / APPROVAL                                     */
+/* ---------------------------------------------------------- */
+async function updateUserStatus(req, res) {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  // Status is a simple approval flag: 1 = approved, 0 = not approved (covers
+  // both "still pending" and "disabled by admin" — same meaning either way,
+  // the account can't log in until an admin sets it back to 1).
+  const normalizedStatus = Number(status);
+  if (normalizedStatus !== 0 && normalizedStatus !== 1) {
+    return res.status(400).json({ message: 'Invalid status value. Use 1 (approve) or 0 (disable/revoke).' });
+  }
+
+  try {
+    const [rows] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+    if (!rows[0]) return res.status(404).json({ message: 'User not found.' });
+
+    await pool.query('UPDATE users SET status = ? WHERE id = ?', [normalizedStatus, id]);
+    await logActivity(req.user.id, 'UPDATE_USER_STATUS', `Set user ${id} status to ${normalizedStatus === 1 ? 'approved' : 'disabled'}`);
+    res.json({ message: normalizedStatus === 1 ? 'User approved successfully.' : 'User access revoked.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error while updating user status.' });
+  }
+}
+
 module.exports = {
   getDashboardStats,
   listStudents, createStudent, updateStudent, deleteStudent,
@@ -522,4 +577,5 @@ module.exports = {
   listExams, createExam, deleteExam,
   listLogs,
   attendanceSummaryReport, performanceReport,
+  listUsers, updateUserStatus,
 };

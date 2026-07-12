@@ -6,6 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import Layout from './components/layout/Layout.jsx';
 
 import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
+import ForgotPassword from './pages/ForgotPassword.jsx';
+import AttendanceScan from './pages/AttendanceScan.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 import AdminOverview from './pages/admin/Overview.jsx';
@@ -17,6 +20,7 @@ import AdminNotices from './pages/admin/Notices.jsx';
 import AdminExams from './pages/admin/Exams.jsx';
 import AdminReports from './pages/admin/Reports.jsx';
 import AdminLogs from './pages/admin/Logs.jsx';
+import AdminUsers from './pages/admin/Users.jsx';
 
 import FacultyOverview from './pages/faculty/Overview.jsx';
 import FacultySubjects from './pages/faculty/Subjects.jsx';
@@ -30,6 +34,7 @@ import FacultyProfile from './pages/faculty/Profile.jsx';
 import StudentOverview from './pages/student/Overview.jsx';
 import StudentSchedule from './pages/student/Schedule.jsx';
 import StudentAttendance from './pages/student/Attendance.jsx';
+import ScanAttendance from './pages/student/ScanAttendance.jsx';
 import StudentMarks from './pages/student/Marks.jsx';
 import StudentMaterials from './pages/student/Materials.jsx';
 import StudentNotices from './pages/student/Notices.jsx';
@@ -49,10 +54,17 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomeRedirect />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/attendance/scan/:token"
+          element={<ProtectedRoute role="student"><AttendanceScan /></ProtectedRoute>}
+        />
 
         <Route path="/admin" element={<ProtectedRoute role="admin"><Layout role="admin" /></ProtectedRoute>}>
           <Route index element={<AdminOverview />} />
           <Route path="students" element={<AdminStudents />} />
+          <Route path="users" element={<AdminUsers />} />
           <Route path="faculty" element={<AdminFaculty />} />
           <Route path="branches" element={<AdminBranches />} />
           <Route path="subjects" element={<AdminSubjects />} />
@@ -77,6 +89,7 @@ export default function App() {
           <Route index element={<StudentOverview />} />
           <Route path="schedule" element={<StudentSchedule />} />
           <Route path="attendance" element={<StudentAttendance />} />
+          <Route path="scan-attendance" element={<ScanAttendance />} />
           <Route path="marks" element={<StudentMarks />} />
           <Route path="materials" element={<StudentMaterials />} />
           <Route path="notices" element={<StudentNotices />} />

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { GraduationCap, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const DEMO = [
@@ -16,15 +17,26 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+
+    if (!captchaToken) {
+      setError('Please verify that you are not a robot.');
+      return;
+    }
+
     try {
-      const user = await login(email, password);
+      const user = await login(email, password, captchaToken);
       navigate(`/${user.role}`);
     } catch (err) {
       setError(err.message);
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
     }
   }
 
@@ -123,10 +135,27 @@ export default function Login() {
                 </button>
               </div>
             </div>
-            <button type="submit" className="btn-primary-admin w-full" disabled={loading}>
+
+            {/* Google reCAPTCHA v2 — "I'm not a robot" checkbox */}
+            <div className="flex justify-start">
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={recaptchaSiteKey}
+                onChange={(token) => setCaptchaToken(token)}
+                onExpired={() => setCaptchaToken(null)}
+                onErrored={() => setCaptchaToken(null)}
+              />
+            </div>
+
+            <button type="submit" className="btn-primary-admin w-full" disabled={loading || !captchaToken}>
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
+
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <Link to="/register" className="font-medium text-admin hover:underline">Create account</Link>
+            <Link to="/forgot-password" className="font-medium text-admin hover:underline">Forgot password?</Link>
+          </div>
 
           <div className="mt-7 rounded-card border border-slate bg-white p-4">
             <p className="mb-2.5 text-xs font-medium uppercase tracking-wide text-ink/45">Demo accounts</p>

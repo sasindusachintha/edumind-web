@@ -125,7 +125,7 @@ export default function AdminFaculty() {
                   <td className="text-ink/60">{f.designation}</td>
                   <td className="text-ink/60">{f.branchName || '—'}</td>
                   <td className="text-ink/60">{f.subjectCount}</td>
-                  <td><Badge tone={f.status === 'active' ? 'success' : 'neutral'}>{f.status}</Badge></td>
+                  <td><Badge tone={Number(f.status) === 1 ? 'success' : 'neutral'}>{Number(f.status) === 1 ? 'Active' : 'Disabled'}</Badge></td>
                   <td>
                     <div className="flex justify-end gap-1.5">
                       <button className="rounded-md p-1.5 text-ink/45 hover:bg-paper hover:text-admin" onClick={() => openEdit(f)} aria-label="Edit"><Pencil size={15} /></button>
@@ -166,9 +166,9 @@ export default function AdminFaculty() {
           {editing && (
             <div>
               <label className="label">Status</label>
-              <select className="input" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option value="active">Active</option>
-                <option value="disabled">Disabled</option>
+              <select className="input" value={form.status} onChange={(e) => setForm({ ...form, status: Number(e.target.value) })}>
+                <option value={1}>Active</option>
+                <option value={0}>Disabled</option>
               </select>
             </div>
           )}

@@ -37,6 +37,9 @@ router.delete('/exams/:id', ctrl.deleteExam);
 
 router.get('/logs', ctrl.listLogs);
 
+router.put('/users/:id/status', ctrl.updateUserStatus);
+router.get('/users', ctrl.listUsers);
+
 router.get('/reports/attendance', ctrl.attendanceSummaryReport);
 router.get('/reports/performance', ctrl.performanceReport);
 

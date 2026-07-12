@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Phone OTP Login</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f4f7fb; color: #1f2937; margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+      .container { width: 100%; max-width: 420px; background: #ffffff; border-radius: 16px; box-shadow: 0 18px 45px rgba(15, 23, 42, 0.1); padding: 28px; }
+      .container h1 { margin-top: 0; font-size: 1.75rem; }
+      label { display: block; margin: 16px 0 8px; font-weight: 600; }
+      input { width: 100%; padding: 12px 14px; border: 1px solid #d1d5db; border-radius: 10px; font-size: 1rem; }
+      button { width: 100%; margin-top: 16px; padding: 13px 16px; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; }
+      button.primary { background: #2563eb; color: white; }
+      button.secondary { background: #16a34a; color: white; }
+      button:disabled { opacity: 0.65; cursor: not-allowed; }
+      .message { margin-top: 16px; padding: 14px 16px; border-radius: 12px; background: #f8fafc; border: 1px solid #e2e8f0; }
+      .message.error { color: #991b1b; background: #fee2e2; border-color: #fecaca; }
+      .message.success { color: #166534; background: #dcfce7; border-color: #bbf7d0; }
+      #recaptcha-container { margin-top: 16px; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Firebase Phone OTP Login</h1>
+      <p>Use your Sri Lanka phone number in E.164 format: <strong>+9477XXXXXXX</strong>.</p>
+
+      <label for="phoneNumber">Phone number</label>
+      <input id="phoneNumber" type="tel" placeholder="+9477XXXXXXX" autocomplete="tel" />
+
+      <button id="sendOtpBtn" class="primary" type="button">Send OTP</button>
+
+      <div id="recaptcha-container"></div>
+
+      <label for="otpCode">OTP code</label>
+      <input id="otpCode" type="text" placeholder="Enter 6-digit code" autocomplete="one-time-code" />
+
+      <button id="verifyOtpBtn" class="secondary" type="button">Verify OTP</button>
+
+      <div id="message" class="message" aria-live="polite"></div>
+    </div>
+
+    <script type="module" src="./firebase-phone-auth.js"></script>
+  </body>
+</html>

@@ -174,7 +174,27 @@ async function saveMarks(req, res) {
   }
   try {
     const facultyId = await getFacultyId(req.user.id);
+    // Ensure subject belongs to this faculty
+    const [subjectRows] = await pool.query('SELECT id FROM subjects WHERE id = ? AND faculty_id = ?', [subjectId, facultyId]);
+    if (!subjectRows[0]) {
+      return res.status(403).json({ message: 'You are not authorized to modify marks for this subject.' });
+    }
+    const invalid = [];
     for (const r of records) {
+      // validate studentId
+      const sid = Number(r.studentId) || 0;
+      if (!Number.isInteger(sid) || sid <= 0) {
+        invalid.push(sid || r.studentId);
+        continue;
+      }
+
+      // ensure student is enrolled in the subject
+      const [enr] = await pool.query('SELECT 1 FROM enrollments WHERE student_id = ? AND subject_id = ? LIMIT 1', [sid, subjectId]);
+      if (!enr[0]) {
+        invalid.push(sid);
+        continue;
+      }
+
       if (r.internalMarks !== undefined && r.internalMarks !== null && r.internalMarks !== '') {
         await pool.query(
           `INSERT INTO marks (student_id, subject_id, exam_type, internal_marks, graded_by)
@@ -191,6 +211,9 @@ async function saveMarks(req, res) {
           [r.studentId, subjectId, r.examMarks, facultyId]
         );
       }
+    }
+    if (invalid.length > 0) {
+      return res.status(400).json({ message: 'Some records were invalid or students not enrolled.', invalid });
     }
     await logActivity(req.user.id, 'ENTER_MARKS', `Updated marks for subject #${subjectId}`);
     res.json({ message: 'Marks saved successfully.' });

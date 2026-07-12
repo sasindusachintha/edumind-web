@@ -28,19 +28,19 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- USERS
 
-INSERT INTO users (id, name, email, password, role, phone, avatar_color) VALUES
-(1, 'Sasindu Sachintha', 'admin@edumind.lk', '$2b$10$RgJgUibX8dRHtsupexZMDeMYOdJg8tkAjb9YrPKaq2QOX6z0A/VTK', 'admin', '0771234567', '#3949AB'),
-(2, 'Dr. Rahul Senanayake', 'rahul.s@edumind.lk', '$2b$10$Pg605gD8O7HCi9zEyJDd9uzSdmubdw3PZ.rlnWmSIEfdnihNAJzKK', 'faculty', '0772223344', '#00897B'),
-(3, 'Anjali Perera', 'anjali.p@edumind.lk', '$2b$10$Pg605gD8O7HCi9zEyJDd9uzSdmubdw3PZ.rlnWmSIEfdnihNAJzKK', 'faculty', '0772223345', '#00897B'),
-(4, 'Kasun Fernando', 'kasun.f@edumind.lk', '$2b$10$Pg605gD8O7HCi9zEyJDd9uzSdmubdw3PZ.rlnWmSIEfdnihNAJzKK', 'faculty', '0772223346', '#00897B'),
-(5, 'Amit Sharma', 'amit.s@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991111', '#F0A500'),
-(6, 'Nadeesha Silva', 'nadeesha.s@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991112', '#F0A500'),
-(7, 'Tharindu Jay', 'tharindu.j@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991113', '#F0A500'),
-(8, 'Kavindi Madushani', 'kavindi.m@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991114', '#F0A500'),
-(9, 'Ruwan Bandara', 'ruwan.b@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991115', '#F0A500'),
-(10, 'Sajini Perera', 'sajini.p@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991116', '#F0A500'),
-(11, 'Dilshan Kumara', 'dilshan.k@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991117', '#F0A500'),
-(12, 'Hashini De Silva', 'hashini.d@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991118', '#F0A500');
+INSERT INTO users (id, name, email, password, role, phone, avatar_color, status, is_verified) VALUES
+(1, 'Sasindu Sachintha', 'admin@edumind.lk', '$2b$10$RgJgUibX8dRHtsupexZMDeMYOdJg8tkAjb9YrPKaq2QOX6z0A/VTK', 'admin', '0771234567', '#3949AB', 1, 1),
+(2, 'Dr. Rahul Senanayake', 'rahul.s@edumind.lk', '$2b$10$Pg605gD8O7HCi9zEyJDd9uzSdmubdw3PZ.rlnWmSIEfdnihNAJzKK', 'faculty', '0772223344', '#00897B', 1, 1),
+(3, 'Anjali Perera', 'anjali.p@edumind.lk', '$2b$10$Pg605gD8O7HCi9zEyJDd9uzSdmubdw3PZ.rlnWmSIEfdnihNAJzKK', 'faculty', '0772223345', '#00897B', 1, 1),
+(4, 'Kasun Fernando', 'kasun.f@edumind.lk', '$2b$10$Pg605gD8O7HCi9zEyJDd9uzSdmubdw3PZ.rlnWmSIEfdnihNAJzKK', 'faculty', '0772223346', '#00897B', 1, 1),
+(5, 'Amit Sharma', 'amit.s@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991111', '#F0A500', 1, 1),
+(6, 'Nadeesha Silva', 'nadeesha.s@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991112', '#F0A500', 1, 1),
+(7, 'Tharindu Jay', 'tharindu.j@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991113', '#F0A500', 1, 1),
+(8, 'Kavindi Madushani', 'kavindi.m@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991114', '#F0A500', 1, 1),
+(9, 'Ruwan Bandara', 'ruwan.b@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991115', '#F0A500', 1, 1),
+(10, 'Sajini Perera', 'sajini.p@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991116', '#F0A500', 1, 1),
+(11, 'Dilshan Kumara', 'dilshan.k@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991117', '#F0A500', 1, 1),
+(12, 'Hashini De Silva', 'hashini.d@edumind.lk', '$2b$10$37IZtkoz./SCJR999YOIN.8r80qymGS4KqLJgt3MVTrrCNe/IV1fm', 'student', '0719991118', '#F0A500', 1, 1);
 
 
 -- BRANCHES

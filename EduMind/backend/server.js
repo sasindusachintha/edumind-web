@@ -7,6 +7,9 @@ const authRoutes = require('./routes/auth.routes');
 const adminRoutes = require('./routes/admin.routes');
 const facultyRoutes = require('./routes/faculty.routes');
 const studentRoutes = require('./routes/student.routes');
+const attendanceRoutes = require('./routes/attendance.routes');
+const { ensureAuthSchema } = require('./utils/otp');
+const { ensureAttendanceSchema } = require('./controllers/attendanceController');
 
 const app = express();
 
@@ -25,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/student', studentRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -38,6 +42,15 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`EduMind API running on http://localhost:${PORT}`);
-});
+
+ensureAuthSchema()
+  .then(() => ensureAttendanceSchema())
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`EduMind API running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to prepare auth schema:', err);
+    process.exit(1);
+  });

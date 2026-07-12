@@ -11,11 +11,11 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (email, password, captchaToken) => {
     setLoading(true);
     setError('');
     try {
-      const { data } = await authApi.login(email, password);
+      const { data } = await authApi.login(email, password, captchaToken);
       localStorage.setItem('edumind_token', data.token);
       localStorage.setItem('edumind_user', JSON.stringify(data.user));
       setUser(data.user);
