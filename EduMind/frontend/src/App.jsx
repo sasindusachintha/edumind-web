@@ -26,6 +26,7 @@ import FacultyOverview from './pages/faculty/Overview.jsx';
 import FacultySubjects from './pages/faculty/Subjects.jsx';
 import FacultyStudents from './pages/faculty/Students.jsx';
 import FacultyAttendance from './pages/faculty/Attendance.jsx';
+import FacultyAttendanceReport from './pages/faculty/AttendanceReport.jsx';
 import FacultyMarks from './pages/faculty/Marks.jsx';
 import FacultyMaterials from './pages/faculty/Materials.jsx';
 import FacultyNotes from './pages/faculty/Notes.jsx';
@@ -79,6 +80,7 @@ export default function App() {
           <Route path="subjects" element={<FacultySubjects />} />
           <Route path="students" element={<FacultyStudents />} />
           <Route path="attendance" element={<FacultyAttendance />} />
+          <Route path="attendance-report" element={<FacultyAttendanceReport />} />
           <Route path="marks" element={<FacultyMarks />} />
           <Route path="materials" element={<FacultyMaterials />} />
           <Route path="notes" element={<FacultyNotes />} />

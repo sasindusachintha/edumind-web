@@ -3,6 +3,20 @@ const fs = require('fs');
 const path = require('path');
 const { logActivity } = require('../utils/activityLogger');
 
+// How many days in the past a faculty member is allowed to create/edit
+// attendance for. Older dates become view-only (via getAttendanceReport).
+// Configurable via .env; defaults to 30 days if not set.
+const ATTENDANCE_EDIT_WINDOW_DAYS = parseInt(process.env.ATTENDANCE_EDIT_WINDOW_DAYS, 10) || 30;
+
+/** True if `dateStr` (YYYY-MM-DD) is still within the editable window. */
+function isWithinEditWindow(dateStr) {
+  const target = new Date(`${dateStr}T00:00:00`);
+  const cutoff = new Date();
+  cutoff.setHours(0, 0, 0, 0);
+  cutoff.setDate(cutoff.getDate() - ATTENDANCE_EDIT_WINDOW_DAYS);
+  return target >= cutoff;
+}
+
 /** Resolves the faculty.id row for the logged-in user (req.user.id) */
 async function getFacultyId(userId) {
   const [rows] = await pool.query('SELECT id FROM faculty WHERE user_id = ?', [userId]);
@@ -110,10 +124,87 @@ async function getAttendanceForSession(req, res) {
        ORDER BY st.student_no`,
       [date, subjectId]
     );
-    res.json(students);
+    res.json({
+      students,
+      editable: isWithinEditWindow(date),
+      editWindowDays: ATTENDANCE_EDIT_WINDOW_DAYS
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error while loading attendance session.' });
+  }
+}
+
+/**
+ * Read-only attendance history/report. Never allows editing — this is what
+ * the "view past attendance" page uses instead of the manual mark form.
+ * GET /api/faculty/attendance/report?subjectId=&from=&to=
+ */
+async function getAttendanceReport(req, res) {
+  const { subjectId, from, to } = req.query;
+  if (!subjectId || !from || !to) {
+    return res.status(400).json({ message: 'subjectId, from and to dates are required.' });
+  }
+
+  try {
+    const facultyId = await getFacultyId(req.user.id);
+
+    // Authorization: only report on subjects this faculty member teaches.
+    const [subjectRows] = await pool.query(
+      'SELECT id, name, code FROM subjects WHERE id = ? AND faculty_id = ?',
+      [subjectId, facultyId]
+    );
+    if (!subjectRows[0]) return res.status(403).json({ message: 'You are not assigned to this subject.' });
+
+    // Every distinct date attendance was actually taken on, within range.
+    const [sessionRows] = await pool.query(
+      `SELECT DISTINCT date FROM attendance WHERE subject_id = ? AND date BETWEEN ? AND ? ORDER BY date`,
+      [subjectId, from, to]
+    );
+    const sessionDates = sessionRows.map((r) => r.date);
+
+    // Per-student present/late/absent counts and percentage over that range.
+    const [studentRows] = await pool.query(
+      `SELECT st.id AS studentId, st.student_no, u.name,
+              SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) AS presentCount,
+              SUM(CASE WHEN a.status = 'late' THEN 1 ELSE 0 END) AS lateCount,
+              SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) AS absentCount,
+              COUNT(a.id) AS totalMarked
+       FROM enrollments en
+       JOIN students st ON st.id = en.student_id
+       JOIN users u ON u.id = st.user_id
+       LEFT JOIN attendance a ON a.student_id = st.id AND a.subject_id = en.subject_id
+              AND a.date BETWEEN ? AND ?
+       WHERE en.subject_id = ?
+       GROUP BY st.id, st.student_no, u.name
+       ORDER BY st.student_no`,
+      [from, to, subjectId]
+    );
+
+    const totalSessions = sessionDates.length;
+    const students = studentRows.map((r) => ({
+      studentId: r.studentId,
+      student_no: r.student_no,
+      name: r.name,
+      present: r.presentCount,
+      late: r.lateCount,
+      absent: r.absentCount,
+      totalSessions,
+      percentage: totalSessions > 0 ? Math.round((r.presentCount / totalSessions) * 1000) / 10 : null
+    }));
+
+    res.json({
+      subjectName: subjectRows[0].name,
+      subjectCode: subjectRows[0].code,
+      from,
+      to,
+      totalSessions,
+      sessionDates,
+      students
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error while generating the attendance report.' });
   }
 }
 
@@ -122,6 +213,13 @@ async function markAttendance(req, res) {
   if (!subjectId || !date || !Array.isArray(records)) {
     return res.status(400).json({ message: 'subjectId, date and records array are required.' });
   }
+
+  if (!isWithinEditWindow(date)) {
+    return res.status(403).json({
+      message: `Attendance older than ${ATTENDANCE_EDIT_WINDOW_DAYS} days can no longer be edited. Use the Attendance Report page to view it.`
+    });
+  }
+
   try {
     const facultyId = await getFacultyId(req.user.id);
     for (const r of records) {
@@ -338,7 +436,7 @@ module.exports = {
   getProfile, updateProfile,
   getMySubjects,
   searchStudents,
-  getAttendanceForSession, markAttendance,
+  getAttendanceForSession, markAttendance, getAttendanceReport,
   getMarksForSubject, saveMarks,
   listMaterials, uploadMaterial, deleteMaterial,
   listNotes, createNote, updateNote, deleteNote,

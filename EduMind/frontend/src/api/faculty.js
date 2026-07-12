@@ -10,6 +10,8 @@ export const getAttendanceSession = (subjectId, date) =>
   api.get('/faculty/attendance', { params: { subjectId, date } });
 export const markAttendance = (subjectId, date, records) =>
   api.post('/faculty/attendance', { subjectId, date, records });
+export const getAttendanceReport = (subjectId, from, to) =>
+  api.get('/faculty/attendance/report', { params: { subjectId, from, to } });
 
 export const getMarksForSubject = (subjectId) => api.get('/faculty/marks', { params: { subjectId } });
 export const saveMarks = (subjectId, records) => api.post('/faculty/marks', { subjectId, records });

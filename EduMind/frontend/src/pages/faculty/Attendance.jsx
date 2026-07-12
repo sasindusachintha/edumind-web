@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { ClipboardCheck, Save, QrCode, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ClipboardCheck, Save, QrCode, RefreshCw, Lock, History } from 'lucide-react';
 import * as facultyApi from '../../api/faculty.js';
 import * as attendanceApi from '../../api/attendance.js';
 import PageHeader from '../../components/common/PageHeader.jsx';
@@ -36,6 +37,8 @@ export default function FacultyAttendance() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editable, setEditable] = useState(true);
+  const [editWindowDays, setEditWindowDays] = useState(30);
 
   // --- QR attendance state ---
   const [classLabel, setClassLabel] = useState('');
@@ -56,7 +59,11 @@ export default function FacultyAttendance() {
     if (!subjectId || !date) return;
     setLoading(true);
     facultyApi.getAttendanceSession(subjectId, date)
-      .then((res) => setRows(res.data.map((r) => ({ ...r, status: r.status || 'present' }))))
+      .then((res) => {
+        setRows(res.data.students.map((r) => ({ ...r, status: r.status || 'present' })));
+        setEditable(res.data.editable);
+        setEditWindowDays(res.data.editWindowDays);
+      })
       .finally(() => setLoading(false));
   }, [subjectId, date]);
 
@@ -125,11 +132,16 @@ export default function FacultyAttendance() {
         title="Attendance"
         subtitle="Mark attendance manually, or generate a QR code students can scan."
         actions={
-          mode === 'manual' && rows.length > 0 && (
-            <button className="btn-primary-faculty" onClick={handleSave} disabled={saving}>
-              <Save size={15} /> {saving ? 'Saving…' : 'Save attendance'}
-            </button>
-          )
+          <div className="flex items-center gap-2">
+            <Link to="/faculty/attendance-report" className="btn-ghost text-xs">
+              <History size={14} /> View attendance report
+            </Link>
+            {mode === 'manual' && editable && rows.length > 0 && (
+              <button className="btn-primary-faculty" onClick={handleSave} disabled={saving}>
+                <Save size={15} /> {saving ? 'Saving…' : 'Save attendance'}
+              </button>
+            )}
+          </div>
         }
       />
 
@@ -153,13 +165,23 @@ export default function FacultyAttendance() {
           {subjects.map((s) => <option key={s.id} value={s.id}>{s.code} — {s.name}</option>)}
         </select>
         <input className="input max-w-[180px]" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        {mode === 'manual' && rows.length > 0 && (
+        {mode === 'manual' && editable && rows.length > 0 && (
           <div className="flex gap-1.5">
             <button className="btn-ghost text-xs" onClick={() => markAll('present')}>Mark all present</button>
             <button className="btn-ghost text-xs" onClick={() => markAll('absent')}>Mark all absent</button>
           </div>
         )}
       </div>
+
+      {mode === 'manual' && !editable && rows.length > 0 && (
+        <div className="mb-4 flex items-start gap-2 rounded-md border border-warn/30 bg-warn/5 px-3 py-2.5 text-sm text-warn">
+          <Lock size={16} className="mt-0.5 flex-shrink-0" />
+          <span>
+            This date is more than {editWindowDays} days in the past, so it's now view-only and can't be edited.
+            Use <Link to="/faculty/attendance-report" className="font-medium underline">Attendance Report</Link> for full history.
+          </span>
+        </div>
+      )}
 
       {mode === 'qr' ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -230,10 +252,11 @@ export default function FacultyAttendance() {
                         <button
                           key={opt.value}
                           type="button"
+                          disabled={!editable}
                           onClick={() => setStatus(r.studentId, opt.value)}
                           className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
                             r.status === opt.value ? TONE_CLASSES[opt.tone] : 'border-slate text-ink/45 hover:bg-paper'
-                          }`}
+                          } ${!editable ? 'cursor-not-allowed opacity-60' : ''}`}
                         >
                           {opt.label}
                         </button>

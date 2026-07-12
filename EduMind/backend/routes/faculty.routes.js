@@ -14,6 +14,7 @@ router.get('/students', ctrl.searchStudents);
 
 router.get('/attendance', ctrl.getAttendanceForSession);
 router.post('/attendance', ctrl.markAttendance);
+router.get('/attendance/report', ctrl.getAttendanceReport);
 
 router.get('/marks', ctrl.getMarksForSubject);
 router.post('/marks', ctrl.saveMarks);
