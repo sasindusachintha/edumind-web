@@ -20,9 +20,9 @@ EduMind is a modern educational website designed to provide students with easy a
 - HTML5
 - CSS3
 - JavaScript
-- Bootstrap (optional)
-- PHP / Node.js (if backend used)
-- MySQL (if database used)
+- Bootstrap
+- PHP / Node.js 
+- MySQL 
 
 ---
 
